@@ -1,6 +1,6 @@
 # MyMarkdownToHTML
 
-Essai de convertisseur très simple, en JS côté *client*, de certaines caractéristiques Markdown en HTML. Optimisable.
+Essai de convertisseur très simple, en JS côté *client*, de certaines caractéristiques Markdown en HTML. 
 
 ## Eléments pris en charge
 
@@ -10,4 +10,8 @@ Actuellement, le script convertit :
 - le paragraphe `p`,
 - dans le paragraphe, le gras `strong`, l'italique `i`, le gras-italique, l'italique-gras, le lien `a`, le code `code`,
 - le bloc multiligne de code avec indentation,
-- la liste non ordonnée `ul` et l'entrée `li`.
+- la liste non ordonnée `ul`, et l'entrée `li` qui contient un paragraphe `p`.
+
+Limitations actuelles :
+- pas de récursivité,
+- une boucle imbriquée pour le traitement des paragraphes.
