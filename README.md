@@ -12,6 +12,8 @@ Actuellement, le script convertit :
 - le bloc multiligne de code avec indentation,
 - la liste non ordonnée `ul`, et l'entrée `li` qui contient un paragraphe `p`.
 
-Limitations actuelles :
+## Limitations actuelles
+
+Le programme est limité :
 - pas de récursivité,
 - une boucle imbriquée pour le traitement des paragraphes.
