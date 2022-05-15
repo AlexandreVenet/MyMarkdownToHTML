@@ -31,3 +31,10 @@ function void toto()
 ```
 
 Bien, voilà.
+
+Une liste imbriquée qui n'est pas prise en charge :
+- toto
+- prout :
+  - toto
+  - prout
+---- Fin de la liste imbriquée -----

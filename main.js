@@ -80,7 +80,7 @@ function AnalyseMD(texte)
 			}
 		}
 		// liste UL 
-		else if(element[0] == '-')
+		else if(element.substring(0,2) == '- ')
 		{
 			if(!etatUL)
 			{
