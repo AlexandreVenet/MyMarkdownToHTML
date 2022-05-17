@@ -32,9 +32,9 @@ function void toto()
 
 Bien, voilà.
 
-Une liste imbriquée qui n'est pas prise en charge :
+Une liste imbriquée prise en charge :
 - toto
 - prout :
-  - toto
-  - prout
+  - imbriquée 1
+  - **imbriquée** 2
 ---- Fin de la liste imbriquée -----

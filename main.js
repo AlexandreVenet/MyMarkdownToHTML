@@ -12,6 +12,11 @@ function ChargerPage(page){
 }
 
 
+let tableauFinal = [];
+let etatUL1 = false;
+let etatUL2 = false;
+let debutCode = false;
+
 function AnalyseMD(texte)
 {
 	// enlever les \r et les lignes de string empty
@@ -20,17 +25,16 @@ function AnalyseMD(texte)
 	// Non, on va avoir ebsoin des \r.
 
 	// faire un tableau avec tel séparateur
-	let split = texte.split('\n');
-	console.log(split);
+	let texteTableau = texte.split('\n');
+	console.log(texteTableau);
 
-	let splitFinal = [];
+	tableauFinal = [];
+	debutCode = false;
+	etatUL1 = false;
+	etatUL2 = false;
 
-	let debutCode = false;
-	// let debutUL = false;
-	let etatUL = false;
-
-	for (let i = 0; i < split.length; i++) {
-		let element = split[i];
+	for (let i = 0; i < texteTableau.length; i++) {
+		let element = texteTableau[i];
 		// Si quelque chose de gênant, supprimer
 		if (element === null || element == '' || element == '\r') 
 		{
@@ -39,64 +43,117 @@ function AnalyseMD(texte)
 		// titre H1
 		else if(element.substring(0,2) == '# ')
 		{
-			if(etatUL) 
+			if(etatUL2)
 			{
-				splitFinal.push(`</ul>`);
-				etatUL = false;
+				TraiterUL2(`</ul>`);
+				etatUL2 = false;
 			}
+			
+			if(etatUL1) 
+			{
+				tableauFinal.push(`</ul>`);
+				etatUL1 = false;
+			}
+
 			let justeLeTexte = element.substring(2,element.length);
 			let ligne = `<h1>${justeLeTexte}</h1>`;
-			splitFinal.push(ligne);
+			tableauFinal.push(ligne);
 		}
 		// titre H2
 		else if(element.substring(0,3) == '## ')
 		{
-			if(etatUL) 
+			if(etatUL2) 
 			{
-				splitFinal.push(`</ul>`);
-				etatUL = false;
+				TraiterUL2(`</ul>`);
+				etatUL2 = false;
 			}
+
+			if(etatUL1) 
+			{
+				tableauFinal.push(`</ul>`);
+				etatUL1 = false;
+			}
+
 			let justeLeTexte = element.substring(3,element.length);
 			let ligne = `<h2>${justeLeTexte}</h2>`;
-			splitFinal.push(ligne);
+			tableauFinal.push(ligne);
 		}
 		// début de code avec ```
 		else if(element == '```\r')
 		{
-			if(etatUL) 
+			if(etatUL2) 
 			{
-				splitFinal.push(`</ul>`);
-				etatUL = false;
+				TraiterUL2(`</ul>`);
+				etatUL2 = false;
 			}
+
+			if(etatUL1) 
+			{
+				tableauFinal.push(`</ul>`);
+				etatUL1 = false;
+			}
+
 			if(!debutCode)
 			{
 				debutCode = true;
-				splitFinal.push(`<pre><code>`);
+				tableauFinal.push(`<pre><code>`);
 			}
 			else
 			{
 				debutCode = false;
-				splitFinal.push(`</code></pre>`);
+				tableauFinal.push(`</code></pre>`);
 			}
 		}
 		// liste UL 
 		else if(element.substring(0,2) == '- ')
 		{
-			if(!etatUL)
+			if(etatUL2) 
 			{
-				splitFinal.push(`<ul>`);
-				etatUL = true;
+				TraiterUL2(`</ul>`);
+				etatUL2 = false;
+			}
+
+			if(!etatUL1)
+			{
+				tableauFinal.push(`<ul>`);
+				etatUL1 = true;
 			}
 			let justeLeTexte = AnalyserTexte(element.substring(2,element.length));
-			splitFinal.push(`<li><p>${justeLeTexte}</p></li>`); 
+			tableauFinal.push(`<li>${justeLeTexte}</li>`); 
+		}
+		// liste UL imbriquée
+		else if(element.substring(0,4) == '  - ')
+		{
+			if(!etatUL1) // s'il n'y a pas de UL parente, c'est une erreur de frappe et il faut traiter ce cas
+			{
+				let elementAnalyse = AnalyserTexte(element.substring(4,element.length));
+				tableauFinal.push(`<p>${elementAnalyse}</p>`); 
+			}
+			else // Il y a une UL parente ouverte
+			{
+				if(!etatUL2)
+				{
+					TraiterUL2(`<ul>`);
+					etatUL2 = true;
+				}
+
+				let elementAnalyse = AnalyserTexte(element.substring(4,element.length));
+				TraiterUL2(`<li>${elementAnalyse}</li>`);
+			}
 		}
 		// IMG
 		else if(element.substring(0,2)=='![')
 		{
-			if(etatUL) 
+			if(etatUL2) 
 			{
-				splitFinal.push(`</ul>`);
-				etatUL = false;
+				TraiterUL2(`</ul>`);
+				etatUL2 = false;
+			}
+			
+			if(etatUL1) 
+			{
+				tableauFinal.push(`</ul>`);
+				etatUL1 = false;
 			}
 
 			let crochetOuvrant = element.indexOf('[') + 1;
@@ -105,39 +162,55 @@ function AnalyseMD(texte)
 			let parentheseOuvrante = element.indexOf('(') +1;
 			let parentheseFermante = element.indexOf(')');
 				let url = element.substring(parentheseOuvrante,parentheseFermante);
-			splitFinal.push(`<img src="${url}" alt="${titre}">`);
+			tableauFinal.push(`<img src="${url}" alt="${titre}">`);
 		}
 		// paragraphe P ou ligne de code...
 		else /*if(element[0].match(/[A-Z]/g) || element.substring(0,2)=='\t')*/
 		{
-			if(etatUL) 
+			if(etatUL2) 
 			{
-				splitFinal.push(`</ul>`);
-				etatUL = false;
+				TraiterUL2(`</ul>`);
+				etatUL2 = false;
+			}
+			if(etatUL1) 
+			{
+				tableauFinal.push(`</ul>`);
+				etatUL1 = false;
 			}
 			if(!debutCode)
 			{
-				if(!etatUL)
+				if(!etatUL1)
 				{
 					let elementAnalyse = AnalyserTexte(element);
-					splitFinal.push(`<p>${elementAnalyse}</p>`); 
+					tableauFinal.push(`<p>${elementAnalyse}</p>`); 
 				}
-				// else if(etatUL)
+				// else if(etatUL1)
 				// {
-				// 	splitFinal.push(`<li>${element}</li>`);
+				// 	tableauFinal.push(`<li>${element}</li>`);
 				// }
 			}
 			else 
 			{
-				splitFinal.push(element);
+				tableauFinal.push(element);
 			}
 		}
 	}
 
-	for (let i = 0; i < splitFinal.length; i++) {
-		console.log(splitFinal[i]);
+	for (let i = 0; i < tableauFinal.length; i++) {
+		console.log(tableauFinal[i]);
 		
 	}
+}
+
+
+function TraiterUL2(texteAAjouter)
+{
+	let dernierEntree = tableauFinal[tableauFinal.length-1]; 
+	let chaineSansTagFin = dernierEntree.substring(0,dernierEntree.length-5);
+	let index = chaineSansTagFin.length;
+	let resultat = dernierEntree.slice(0,index) + texteAAjouter + dernierEntree.slice(index);
+	
+	tableauFinal[tableauFinal.length-1] = resultat;
 }
 
 
@@ -231,6 +304,7 @@ function AnalyserTexte(texte)
 
 	return texte;
 }
+
 
 document.addEventListener('DOMContentLoaded', ()=>{
 
