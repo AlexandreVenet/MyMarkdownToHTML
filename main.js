@@ -17,12 +17,13 @@ let etatUL1 = false;
 let etatUL2 = false;
 let debutCode = false;
 
+
 function AnalyseMD(texte)
 {
 	// enlever les \r et les lignes de string empty
 	// let texteSansLignesVides = texte.replace(/(\r)/g,'');
 	// console.log(texteSansLignesVides);
-	// Non, on va avoir ebsoin des \r.
+	// Non, on va avoir besoin des \r. Vraiment ? ^^
 
 	// faire un tableau avec tel séparateur
 	let texteTableau = texte.split('\n');
@@ -35,7 +36,7 @@ function AnalyseMD(texte)
 
 	for (let i = 0; i < texteTableau.length; i++) {
 		let element = texteTableau[i];
-		// Si quelque chose de gênant, supprimer
+		// Si quelque chose de gênant, passer
 		if (element === null || element == '' || element == '\r') 
 		{
 			continue;
@@ -43,17 +44,8 @@ function AnalyseMD(texte)
 		// titre H1
 		else if(element.substring(0,2) == '# ')
 		{
-			if(etatUL2)
-			{
-				TraiterUL2(`</ul>`);
-				etatUL2 = false;
-			}
-			
-			if(etatUL1) 
-			{
-				tableauFinal.push(`</ul>`);
-				etatUL1 = false;
-			}
+			VerifierFinUL2(); // UL imbriquée en premier (si existante)
+			VerifierFinUL1(); // UL (parente ou principale) en second
 
 			let justeLeTexte = element.substring(2,element.length);
 			let ligne = `<h1>${justeLeTexte}</h1>`;
@@ -62,17 +54,8 @@ function AnalyseMD(texte)
 		// titre H2
 		else if(element.substring(0,3) == '## ')
 		{
-			if(etatUL2) 
-			{
-				TraiterUL2(`</ul>`);
-				etatUL2 = false;
-			}
-
-			if(etatUL1) 
-			{
-				tableauFinal.push(`</ul>`);
-				etatUL1 = false;
-			}
+			VerifierFinUL2();
+			VerifierFinUL1();
 
 			let justeLeTexte = element.substring(3,element.length);
 			let ligne = `<h2>${justeLeTexte}</h2>`;
@@ -81,17 +64,8 @@ function AnalyseMD(texte)
 		// début de code avec ```
 		else if(element == '```\r')
 		{
-			if(etatUL2) 
-			{
-				TraiterUL2(`</ul>`);
-				etatUL2 = false;
-			}
-
-			if(etatUL1) 
-			{
-				tableauFinal.push(`</ul>`);
-				etatUL1 = false;
-			}
+			VerifierFinUL2();
+			VerifierFinUL1();
 
 			if(!debutCode)
 			{
@@ -107,11 +81,7 @@ function AnalyseMD(texte)
 		// liste UL 
 		else if(element.substring(0,2) == '- ')
 		{
-			if(etatUL2) 
-			{
-				TraiterUL2(`</ul>`);
-				etatUL2 = false;
-			}
+			VerifierFinUL2();
 
 			if(!etatUL1)
 			{
@@ -144,17 +114,8 @@ function AnalyseMD(texte)
 		// IMG
 		else if(element.substring(0,2)=='![')
 		{
-			if(etatUL2) 
-			{
-				TraiterUL2(`</ul>`);
-				etatUL2 = false;
-			}
-			
-			if(etatUL1) 
-			{
-				tableauFinal.push(`</ul>`);
-				etatUL1 = false;
-			}
+			VerifierFinUL2();
+			VerifierFinUL1();
 
 			let crochetOuvrant = element.indexOf('[') + 1;
 			let crochetFermant = element.indexOf(']');
@@ -167,16 +128,9 @@ function AnalyseMD(texte)
 		// paragraphe P ou ligne de code...
 		else /*if(element[0].match(/[A-Z]/g) || element.substring(0,2)=='\t')*/
 		{
-			if(etatUL2) 
-			{
-				TraiterUL2(`</ul>`);
-				etatUL2 = false;
-			}
-			if(etatUL1) 
-			{
-				tableauFinal.push(`</ul>`);
-				etatUL1 = false;
-			}
+			VerifierFinUL2();
+			VerifierFinUL1();
+
 			if(!debutCode)
 			{
 				if(!etatUL1)
@@ -198,7 +152,6 @@ function AnalyseMD(texte)
 
 	for (let i = 0; i < tableauFinal.length; i++) {
 		console.log(tableauFinal[i]);
-		
 	}
 }
 
@@ -211,6 +164,26 @@ function TraiterUL2(texteAAjouter)
 	let resultat = dernierEntree.slice(0,index) + texteAAjouter + dernierEntree.slice(index);
 	
 	tableauFinal[tableauFinal.length-1] = resultat;
+}
+
+
+function VerifierFinUL1()
+{
+	if(etatUL1) 
+	{
+		tableauFinal.push(`</ul>`);
+		etatUL1 = false;
+	}
+}
+
+
+function VerifierFinUL2()
+{
+	if(etatUL2)
+	{
+		TraiterUL2(`</ul>`);
+		etatUL2 = false;
+	}
 }
 
 
