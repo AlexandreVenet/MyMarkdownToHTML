@@ -10,11 +10,12 @@ Actuellement, le script convertit :
 - le paragraphe `p`,
 - dans le paragraphe, le gras `strong`, l'italique `i`, le gras-italique, l'italique-gras, le lien `a`, le code `code`,
 - le bloc multiligne de code avec indentation,
-- la liste non ordonnée `ul`, et l'entrée `li` qui contient un paragraphe `p`,
-- une seule liste `ul` imbriquée.
+- la liste non ordonnée `ul` et ordonnée `ol`, et l'entrée `li`,
+- un seul niveau de liste imbriquée.
 
-## Limitations actuelles
+## Limitations
 
 Le programme est limité :
 - pas de récursivité,
-- une boucle imbriquée pour le traitement des paragraphes.
+- une boucle imbriquée pour le traitement des paragraphes,
+- passes successives.

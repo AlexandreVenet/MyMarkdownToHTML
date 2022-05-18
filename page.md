@@ -38,3 +38,19 @@ Une liste imbriquée prise en charge :
   - imbriquée 1
   - **imbriquée** 2
 ---- Fin de la liste imbriquée -----
+
+Une liste ordonnée :
+1. entrée numéro 1
+2. Entrée numéro 2
+   1. **imbriquée** 1
+   2. imbriquée 2
+
+Un mélange de listes :
+- ONE
+- TWO
+- THREE
+   1. un
+   2. deux
+- FOUR
+1. liste OL qui suit immédiatement la liste précédente
+2. titi

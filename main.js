@@ -19,7 +19,21 @@ function ChargerPage(page){
 let tableauFinal = [];
 let etatUL1 = false;
 let etatUL2 = false;
+let etatOL1 = false;
+let etatOL2 = false;
 let debutCode = false;
+
+
+// Pour repérer une liste OL
+const regExOL = /^[0-9]*\. /gm;
+// ^		au début de la ligne
+// [0-9]	des nombres
+// \.		un point
+// 			un espace
+// /gm 		global et multiligne
+
+// Idem pour OL imbriquée
+const regExOL2 = /^   [0-9]*\. /gm
 
 
 function AnalyseMD(texte)
@@ -37,9 +51,18 @@ function AnalyseMD(texte)
 	debutCode = false;
 	etatUL1 = false;
 	etatUL2 = false;
+	
 
 	for (let i = 0; i < texteTableau.length; i++) {
 		let element = texteTableau[i];
+
+		// Tester en amont si on a une UL, une OL, UL imbriquée, OL imbriquée
+		// En amont car on va les utiliser plusieurs fois
+		let isUL = element.substring(0,2) == '- ';
+		let isOL = element.match(regExOL);
+		let isULImbriquee = element.substring(0,4) == '  - ';
+		let isOLImbriquee = element.match(regExOL2);
+
 		// Si quelque chose de gênant, passer
 		if (element === null || element == '' || element == '\r') 
 		{
@@ -48,8 +71,10 @@ function AnalyseMD(texte)
 		// titre H1
 		else if(element.substring(0,2) == '# ')
 		{
-			VerifierFinUL2(); // UL imbriquée en premier (si existante)
+			VerifierFinUL2(); // UL imbriquée en premier
+			VerifierFinOL2(); // OL idem
 			VerifierFinUL1(); // UL (parente ou principale) en second
+			VerifierFinOL1(); // OL idem
 
 			let justeLeTexte = element.substring(2,element.length);
 			let ligne = `<h1>${justeLeTexte}</h1>`;
@@ -59,17 +84,21 @@ function AnalyseMD(texte)
 		else if(element.substring(0,3) == '## ')
 		{
 			VerifierFinUL2();
+			VerifierFinOL2();
 			VerifierFinUL1();
+			VerifierFinOL1();
 
 			let justeLeTexte = element.substring(3,element.length);
 			let ligne = `<h2>${justeLeTexte}</h2>`;
 			tableauFinal.push(ligne);
 		}
-		// début de code avec ```
+		// bloc de code ```
 		else if(element == '```')
 		{
 			VerifierFinUL2();
+			VerifierFinOL2();
 			VerifierFinUL1();
+			VerifierFinOL1();
 
 			if(!debutCode)
 			{
@@ -82,28 +111,46 @@ function AnalyseMD(texte)
 				tableauFinal.push(`</code></pre>`);
 			}
 		}
-		// liste UL 
-		else if(element.substring(0,2) == '- ')
+		// liste UL ou OL
+		else if(isUL || isOL)
 		{
 			VerifierFinUL2();
-
-			if(!etatUL1)
+			VerifierFinOL2();
+			
+			let justeLeTexte;
+			
+			// Si c'est une UL
+			if(isUL)
 			{
-				tableauFinal.push(`<ul>`);
-				etatUL1 = true;
+				VerifierFinOL1();
+				if(!etatUL1)
+				{
+					tableauFinal.push(`<ul>`);
+					etatUL1 = true;
+				}
+				justeLeTexte = AnalyserTexte(element.substring(2,element.length));
 			}
-			let justeLeTexte = AnalyserTexte(element.substring(2,element.length));
+			// Ou si c'est une OL
+			else
+			{
+				VerifierFinUL1();
+				if(!etatOL1)
+				{
+					tableauFinal.push(`<ol>`);
+					etatOL1 = true;
+				}
+				let debutChaine = element.match(regExOL)[0].length;
+				justeLeTexte = AnalyserTexte(element.substring(debutChaine,element.length));
+			}
 			tableauFinal.push(`<li>${justeLeTexte}</li>`); 
 		}
-		// liste UL imbriquée
-		else if(element.substring(0,4) == '  - ')
+		// liste UL ou OL imbriquées
+		else if(isULImbriquee || isOLImbriquee)
 		{
-			if(!etatUL1) // s'il n'y a pas de UL parente, c'est une erreur de frappe et il faut traiter ce cas
-			{
-				let elementAnalyse = AnalyserTexte(element.substring(4,element.length));
-				tableauFinal.push(`<p>${elementAnalyse}</p>`); 
-			}
-			else // Il y a une UL parente ouverte
+			let elementAnalyse;
+
+			// Si c'est une UL
+			if(isULImbriquee)
 			{
 				if(!etatUL2)
 				{
@@ -111,15 +158,29 @@ function AnalyseMD(texte)
 					etatUL2 = true;
 				}
 
-				let elementAnalyse = AnalyserTexte(element.substring(4,element.length));
-				TraiterUL2(`<li>${elementAnalyse}</li>`);
+				elementAnalyse = AnalyserTexte(element.substring(4,element.length));
 			}
+			// Ou si c'est une OL
+			else
+			{
+				if(!etatOL2)
+				{
+					TraiterUL2(`<ol>`);
+					etatOL2 = true;
+				}
+
+				let debutChaine = element.match(regExOL2)[0].length;
+				elementAnalyse = AnalyserTexte(element.substring(debutChaine,element.length));
+			}
+			TraiterUL2(`<li>${elementAnalyse}</li>`);
 		}
 		// IMG
 		else if(element.substring(0,2)=='![')
 		{
 			VerifierFinUL2();
+			VerifierFinOL2();
 			VerifierFinUL1();
+			VerifierFinOL1();
 
 			let crochetOuvrant = element.indexOf('[') + 1;
 			let crochetFermant = element.indexOf(']');
@@ -133,11 +194,13 @@ function AnalyseMD(texte)
 		else /*if(element[0].match(/[A-Z]/g) || element.substring(0,2)=='\t')*/
 		{
 			VerifierFinUL2();
+			VerifierFinOL2();
 			VerifierFinUL1();
+			VerifierFinOL1();
 
 			if(!debutCode)
 			{
-				if(!etatUL1)
+				if(!etatUL1 && !etatOL1)
 				{
 					let elementAnalyse = AnalyserTexte(element);
 					tableauFinal.push(`<p>${elementAnalyse}</p>`); 
@@ -154,9 +217,17 @@ function AnalyseMD(texte)
 		}
 	}
 
-	// for (let i = 0; i < tableauFinal.length; i++) {
-	// 	console.log(tableauFinal[i]);
-	// }
+	// Exploration finie.
+
+	// Reste-t-il des UL et OL ouverte ?
+	VerifierFinUL2();
+	VerifierFinOL2();
+	VerifierFinUL1();
+	VerifierFinOL1();
+
+	for (let i = 0; i < tableauFinal.length; i++) {
+		console.log(tableauFinal[i]);
+	}
 	// console.log(tableauFinal);
 
 
@@ -196,15 +267,52 @@ function VerifierFinUL2()
 	}
 }
 
+function VerifierFinOL1()
+{
+	if(etatOL1) 
+	{
+		tableauFinal.push(`</ol>`);
+		etatOL1 = false;
+	}
+}
+
+function VerifierFinOL2()
+{
+	if(etatOL2)
+	{
+		TraiterUL2(`</ol>`);
+		etatOL2 = false;
+	}
+}
+
+
+// RegEx pour les liens 
+const regExLien = /\[.*?\)/g;
+// \[ 	obtenir le [ de début 
+// .* 	tout caractère, peu importe le nombre d'occurences
+// ? 	pour que la recherche soit paresseuse
+// \) 	obtenir la ) de fin
+
+// RegEx pour le tag <code> inline
+const regExCode = /`.*?`/g;
+
+// RegEx pour les <strong><i>
+const regExStrongI = /\*{3}.*?\*{3}/g;
+// \*{n}	le nombre d'étoiles au début
+// .*		tout caractère, peu importe le nombre
+// ?		recherche paresseuse
+// \*{n}	le nombre d'étoiles à la fin
+
+// RegEx pour les <strong>
+const regExStrong = /\*{2}.*?\*{2}/g;
+
+// RegEx pour les <i>
+const regExI = /\*{1}.*?\*{1}/g;
+
 
 function AnalyserTexte(texte)
 {
-	// RegEx pour les liens 
-	const regExLien = /\[.*?\)/g;
-	// \[ 	obtenir le [ de début 
-	// .* 	tout caractère, peu importe le nombre d'occurences
-	// ? 	pour que la recherche soit paresseuse
-	// \) 	obtenir la ) de fin
+	// Les liens
 	let liens = [...texte.matchAll(regExLien)];
 
 	if(liens.length != 0)
@@ -226,62 +334,80 @@ function AnalyserTexte(texte)
 		}
 	}
 
-	// RegEx pour le tag <code> inline
-	const regExCode = /`.*?`/g;
+	// Les tags code, strong i, strong, i font l'objet du même traitement avec des variations :
+	// - tags utilisés ouvrants/fermants,
+	// - index dans la chaîne pour effectuer le substring.
+	// Exemple : '*' pour l'italique, c'est l'index 1, la longueur totale du texte -1
 
-	let codes = [...texte.matchAll(regExCode)];
-	if(codes.length != 0)
-	{
-		for (let i = 0; i < codes.length; i++) {
-			const e = codes[i][0];
-			let justeLeTexte = e.substring(1,e.length-1);
-			let mot = `<code>${justeLeTexte}</code>`;
-			texte = texte.replace(e,mot);
-		}
-	}
+	// les tag <code>
+	texte = VerifierTexteTags(texte, regExCode, 1, '<code>', '</code>');
 
+	// let codes = [...texte.matchAll(regExCode)];
+	// if(codes.length != 0)
+	// {
+	// 	for (let i = 0; i < codes.length; i++) {
+	// 		const e = codes[i][0];
+	// 		let justeLeTexte = e.substring(1,e.length-1);
+	// 		let mot = `<code>${justeLeTexte}</code>`;
+	// 		texte = texte.replace(e,mot);
+	// 	}
+	// }
+	
 	// Pour les textes en gras, italique, gras-italique, l'ordre est important
-
+	
 	// D'ABORD les strong i 
-	const regExStrongI = /\*{3}.*?\*{3}/g;
-	// \*{n}	le nombre d'étoiles au début
-	// .*		tout caractère, peu importe le nombre
-	// ?		recherche paresseuse
-	// \*{n}	le nombre d'étoiles à la fin
-	let strongItalics = [...texte.matchAll(regExStrongI)];
-	if(strongItalics.length != 0)
-	{
-		for (let i = 0; i < strongItalics.length; i++) {
-			const e = strongItalics[i][0];
-			let justeLeTexte = e.substring(3,e.length-3);
-			let chaine = `<b><i>${justeLeTexte}</i></b>`;
-			texte = texte.replace(e,chaine);
-		}
-	}
+	texte = VerifierTexteTags(texte, regExStrongI, 3, '<b><i>', '</i></b>');
+	// let strongItalics = [...texte.matchAll(regExStrongI)];
+	// if(strongItalics.length != 0)
+	// {
+	// 	for (let i = 0; i < strongItalics.length; i++) {
+	// 		const e = strongItalics[i][0];
+	// 		let justeLeTexte = e.substring(3,e.length-3);
+	// 		let chaine = `<b><i>${justeLeTexte}</i></b>`;
+	// 		texte = texte.replace(e,chaine);
+	// 	}
+	// }
 
 	// PUIS les Strong
-	const regExStrong = /\*{2}.*?\*{2}/g;
-	let strongs = [...texte.matchAll(regExStrong)];
-	if(strongs.length != 0)
-	{
-		for (let i = 0; i < strongs.length; i++) {
-			const e = strongs[i][0];
-			let justeLeTexte = e.substring(2,e.length-2);
-			let chaine = `<b>${justeLeTexte}</b>`;
-			texte = texte.replace(e,chaine);
-		}
-	}
+	texte = VerifierTexteTags(texte, regExStrong, 2, '<b>', '</b>');
+	// let strongs = [...texte.matchAll(regExStrong)];
+	// if(strongs.length != 0)
+	// {
+	// 	for (let i = 0; i < strongs.length; i++) {
+	// 		const e = strongs[i][0];
+	// 		let justeLeTexte = e.substring(2,e.length-2);
+	// 		let chaine = `<b>${justeLeTexte}</b>`;
+	// 		texte = texte.replace(e,chaine);
+	// 	}
+	// }
 
 	// ENFIN les i
-	const regExI = /\*{1}.*?\*{1}/g;
-	let italics = [...texte.matchAll(regExI)];
-	if(italics.length != 0)
+	texte = VerifierTexteTags(texte, regExI, 1, '<i>', '</i>');
+	// let italics = [...texte.matchAll(regExI)];
+	// if(italics.length != 0)
+	// {
+	// 	for (let i = 0; i < italics.length; i++) {
+	// 		const e = italics[i][0];
+	// 		let justeLeTexte = e.substring(1,e.length-1);
+	// 		let chaine = `<i>${justeLeTexte}</i>`;
+	// 		texte = texte.replace(e,chaine);
+	// 	}
+	// }
+
+	return texte;
+}
+
+
+function VerifierTexteTags(texte, regex, index, tagDebut, tagFin)
+{
+	let instances = [...texte.matchAll(regex)];
+	if(instances.length != 0)
 	{
-		for (let i = 0; i < italics.length; i++) {
-			const e = italics[i][0];
-			let justeLeTexte = e.substring(1,e.length-1);
-			let chaine = `<i>${justeLeTexte}</i>`;
-			texte = texte.replace(e,chaine);
+		for (let i = 0; i < instances.length; i++) {
+			const e = instances[i][0];
+			let justeLeTexte = e.substring(index, e.length-index);
+			let texteEtTags = `${tagDebut}${justeLeTexte}${tagFin}`;
+			texte = texte.replace(e, texteEtTags);
 		}
 	}
 
