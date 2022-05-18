@@ -2,6 +2,8 @@
 
 Essai de convertisseur très simple, en JS côté *client*, de certaines caractéristiques Markdown en HTML. 
 
+La convention syntaxique suivie est celle de Visual Studio Code.
+
 ## Eléments pris en charge
 
 Actuellement, le script convertit :
