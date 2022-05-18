@@ -18,4 +18,5 @@ Actuellement, le script convertit :
 Le programme est limité :
 - pas de récursivité,
 - une boucle imbriquée pour le traitement des paragraphes,
-- passes successives.
+- passes successives,
+- une ligne de liste imbriquée doit présenter trois espaces à son début.

@@ -33,6 +33,7 @@ const regExOL = /^[0-9]*\. /gm;
 // /gm 		global et multiligne
 
 // Idem pour OL imbriquée
+// 			deux espaces au début
 const regExOL2 = /^   [0-9]*\. /gm
 
 
@@ -60,7 +61,7 @@ function AnalyseMD(texte)
 		// En amont car on va les utiliser plusieurs fois
 		let isUL = element.substring(0,2) == '- ';
 		let isOL = element.match(regExOL);
-		let isULImbriquee = element.substring(0,4) == '  - ';
+		let isULImbriquee = element.substring(0,5) == '   - ';
 		let isOLImbriquee = element.match(regExOL2);
 
 		// Si quelque chose de gênant, passer

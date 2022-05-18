@@ -35,8 +35,9 @@ Bien, voilà.
 Une liste imbriquée prise en charge :
 - toto
 - prout :
-  - imbriquée 1
-  - **imbriquée** 2
+   - imbriquée 1
+   - **imbriquée** 2
+
 ---- Fin de la liste imbriquée -----
 
 Une liste ordonnée :
@@ -49,8 +50,19 @@ Un mélange de listes :
 - ONE
 - TWO
 - THREE
-   1. un
+   1. un  
    2. deux
 - FOUR
-1. liste OL qui suit immédiatement la liste précédente
-2. titi
+
+
+- 12
+   - 12
+
+1. un
+   1. un
+
+- deux
+   1. deux
+
+1. trois
+   - trois
