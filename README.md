@@ -1,6 +1,6 @@
 # MyMarkdownToHTML
 
-Essai de convertisseur très simple, en JS côté *client*, de certaines caractéristiques Markdown en HTML. 
+Essai de convertisseur en JS côté *client*, de certaines caractéristiques Markdown en HTML. 
 
 La convention syntaxique suivie est celle de Visual Studio Code.
 
@@ -17,7 +17,7 @@ Actuellement, le script convertit :
 
 ## Limitations
 
-Le programme est limité :
+Le programme est limité (l'approche n'est sans doute pas la bonne) :
 - pas de récursivité,
 - une boucle imbriquée pour le traitement des paragraphes,
 - passes successives,
