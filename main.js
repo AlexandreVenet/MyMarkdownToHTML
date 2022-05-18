@@ -1,10 +1,14 @@
 'use strict;'
 
+let DOMContenu;
+
+
 function ChargerPage(page){
 	let xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-			AnalyseMD(xhr.response);
+			let contenuPage = AnalyseMD(xhr.response);
+			DOMContenu.innerHTML = contenuPage;
 		}
 	};
 	xhr.open("GET", page, true);
@@ -21,13 +25,13 @@ let debutCode = false;
 function AnalyseMD(texte)
 {
 	// enlever les \r et les lignes de string empty
-	// let texteSansLignesVides = texte.replace(/(\r)/g,'');
-	// console.log(texteSansLignesVides);
+	let texteSansRetours = texte.replace(/\r+/g,'');
+	// console.log(texteSansRetours);
 	// Non, on va avoir besoin des \r. Vraiment ? ^^
 
 	// faire un tableau avec tel séparateur
-	let texteTableau = texte.split('\n');
-	console.log(texteTableau);
+	let texteTableau = texteSansRetours.split('\n');
+	// console.log(texteTableau);
 
 	tableauFinal = [];
 	debutCode = false;
@@ -62,7 +66,7 @@ function AnalyseMD(texte)
 			tableauFinal.push(ligne);
 		}
 		// début de code avec ```
-		else if(element == '```\r')
+		else if(element == '```')
 		{
 			VerifierFinUL2();
 			VerifierFinUL1();
@@ -150,9 +154,15 @@ function AnalyseMD(texte)
 		}
 	}
 
-	for (let i = 0; i < tableauFinal.length; i++) {
-		console.log(tableauFinal[i]);
-	}
+	// for (let i = 0; i < tableauFinal.length; i++) {
+	// 	console.log(tableauFinal[i]);
+	// }
+	// console.log(tableauFinal);
+
+
+	// Renvoyer le contenu sous forme de string
+	// Par défaut, l'array en string contient les séparateur ',' ; je remplace par des retours ligne
+	return tableauFinal.join('\r');
 }
 
 
@@ -281,6 +291,8 @@ function AnalyserTexte(texte)
 
 document.addEventListener('DOMContentLoaded', ()=>{
 
+	DOMContenu = document.getElementById('contenu');
+	
 	ChargerPage('page.md');
 
 });
