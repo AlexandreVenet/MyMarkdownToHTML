@@ -13,7 +13,8 @@ Actuellement, le script convertit :
 - dans le paragraphe, le gras `strong`, l'italique `i`, le gras-italique, l'italique-gras, le lien `a`, le code `code`,
 - le bloc multiligne de code avec indentation,
 - la liste non ordonnée `ul` et ordonnée `ol`, et l'entrée `li`,
-- un seul niveau de liste imbriquée.
+- un seul niveau de liste imbriquée,
+- l'image `img` insérée dans une `figure` avec `figcaption`.
 
 ## Limitations
 
