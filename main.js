@@ -189,7 +189,9 @@ function AnalyseMD(texte)
 			let parentheseOuvrante = element.indexOf('(') +1;
 			let parentheseFermante = element.indexOf(')');
 				let url = element.substring(parentheseOuvrante,parentheseFermante);
-			tableauFinal.push(`<img src="${url}" alt="${titre}">`);
+			// tableauFinal.push(`<img src="${url}" alt="${titre}">`);
+			let html = `<figure><img src="${url}" alt="Image"><figcaption>${titre}</figcaption></figure>`;
+			tableauFinal.push(html);
 		}
 		// paragraphe P ou ligne de code...
 		else /*if(element[0].match(/[A-Z]/g) || element.substring(0,2)=='\t')*/
