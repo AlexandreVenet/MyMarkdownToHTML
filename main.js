@@ -40,12 +40,12 @@ const regExOL2 = /^   [0-9]*\. /gm
 function AnalyseMD(texte)
 {
 	// enlever les \r et les lignes de string empty
-	let texteSansRetours = texte.replace(/\r+/g,'');
+	// let texteSansRetours = texte.replace(/\r+/g,'');
 	// console.log(texteSansRetours);
-	// Non, on va avoir besoin des \r. Vraiment ? ^^
+	// Non, on va avoir besoin des \r pour les <pre><code>
 
 	// faire un tableau avec tel séparateur
-	let texteTableau = texteSansRetours.split('\n');
+	let texteTableau = texte.split('\n');
 	// console.log(texteTableau);
 
 	tableauFinal = [];
@@ -53,7 +53,6 @@ function AnalyseMD(texte)
 	etatUL1 = false;
 	etatUL2 = false;
 	
-
 	for (let i = 0; i < texteTableau.length; i++) {
 		let element = texteTableau[i];
 
@@ -65,7 +64,7 @@ function AnalyseMD(texte)
 		let isOLImbriquee = element.match(regExOL2);
 
 		// Si quelque chose de gênant, passer
-		if (element === null || element == '' || element == '\r') 
+		if (element === null || element == '' /*|| element == '\r'*/) 
 		{
 			continue;
 		}
@@ -94,7 +93,7 @@ function AnalyseMD(texte)
 			tableauFinal.push(ligne);
 		}
 		// bloc de code ```
-		else if(element == '```')
+		else if(element == '```\r')
 		{
 			VerifierFinUL2();
 			VerifierFinOL2();
@@ -110,6 +109,19 @@ function AnalyseMD(texte)
 			{
 				debutCode = false;
 				tableauFinal.push(`</code></pre>`);
+			}
+		}
+		// ligne vide, possiblement du code
+		else if(element == '\r')
+		{
+			if(!this.debutCode)
+			{
+				continue;
+			}
+			else
+			{
+				let ligne = element.slice(0,element.length-1); // enlever le \r
+				tableauFinal.push(ligne);
 			}
 		}
 		// liste UL ou OL
@@ -213,9 +225,10 @@ function AnalyseMD(texte)
 				// 	tableauFinal.push(`<li>${element}</li>`);
 				// }
 			}
-			else 
+			else // code
 			{
-				tableauFinal.push(element);
+				let ligne = element.slice(0,element.length-1); // enlever le \r
+				tableauFinal.push(ligne);
 			}
 		}
 	}
