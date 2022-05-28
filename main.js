@@ -227,7 +227,12 @@ function AnalyseMD(texte)
 			}
 			else // code
 			{
-				let ligne = element.slice(0,element.length-1); // enlever le \r
+				// enlever le \r
+				let ligne = element.slice(0,element.length-1); 
+				// Remplacer les chevrons < et > par des html entities
+				ligne = ligne.replaceAll('<','&lt;');
+				ligne = ligne.replaceAll('>','&gt;');
+
 				tableauFinal.push(ligne);
 			}
 		}
@@ -324,7 +329,6 @@ const regExStrong = /\*{2}.*?\*{2}/g;
 
 // RegEx pour les <i>
 const regExI = /\*{1}.*?\*{1}/g;
-
 
 function AnalyserTexte(texte)
 {

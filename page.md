@@ -6,7 +6,7 @@ Un autre texte...
 
 ## Titre h2
 
-Tu veux du texte ?
+Tu veux du texte ? Je vais écrire un chevron avec des espaces : < toto > titi.
 
 ![Workflow specular](uneImage.png)
 
@@ -22,13 +22,15 @@ Et puis, il y a le `code`, tu `sais`.
 Tester les cas : ***italique* en gras**, *chose **en gras***.
 ```
 Du code comme ça aussi.
-	Avec tabulation, tu `sais`. <bold>des è...
+	Avec tabulation, tu `sais`. <bold> (il y a une balise bold entre chevrons). Des è...
 function void toto()
 {
 	Debug.Log("prout");
 	Du MarkDown aussi : [prout](lien "text")
    
 	saut de ligne !
+
+   button = GetComponent<Button>();
 }
 ```
 
