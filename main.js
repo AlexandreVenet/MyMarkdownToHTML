@@ -93,7 +93,7 @@ function AnalyseMD(texte)
 			tableauFinal.push(ligne);
 		}
 		// bloc de code ```
-		else if(element == '```\r')
+		else if(element == '```\r' || element == '```')
 		{
 			VerifierFinUL2();
 			VerifierFinOL2();
@@ -112,7 +112,7 @@ function AnalyseMD(texte)
 			}
 		}
 		// ligne vide, possiblement du code
-		else if(element == '\r')
+		else if(element == '\r' || element == '\n')
 		{
 			if(!this.debutCode)
 			{
@@ -120,7 +120,8 @@ function AnalyseMD(texte)
 			}
 			else
 			{
-				let ligne = element.slice(0,element.length-1); // enlever le \r
+				// enlever
+				let ligne = element.slice(0,element.length-1); 
 				tableauFinal.push(ligne);
 			}
 		}
@@ -227,8 +228,12 @@ function AnalyseMD(texte)
 			}
 			else // code
 			{
-				// enlever le \r
-				let ligne = element.slice(0,element.length-1); 
+				// enlever le \r si présent en fin de ligne
+				let ligne = element;
+				if(element.slice(element.length-1, element.length) == "\r")
+				{
+					ligne = element.slice(0,element.length-1);
+				}
 				// Remplacer les chevrons < et > par des html entities
 				ligne = ligne.replaceAll('<','&lt;');
 				ligne = ligne.replaceAll('>','&gt;');

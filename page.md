@@ -29,8 +29,7 @@ function void toto()
 	Du MarkDown aussi : [prout](lien "text")
    
 	saut de ligne !
-
-   button = GetComponent<Button>();
+	button = GetComponent<Button>();
 }
 ```
 
