@@ -313,7 +313,8 @@ function VerifierFinOL2()
 
 
 // RegEx pour les liens 
-const regExLien = /\[.*?\)/g;
+// const regExLien = /\[.*?\)/g;
+const regExLien = /\[([^"`]*)\]\((.*?)\)/g;
 // \[ 	obtenir le [ de début 
 // .* 	tout caractère, peu importe le nombre d'occurences
 // ? 	pour que la recherche soit paresseuse

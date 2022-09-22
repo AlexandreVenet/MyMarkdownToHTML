@@ -69,3 +69,5 @@ Un mélange de listes :
 
 1. trois
    - trois
+
+Ceci est un lien [par là](https://duckduckgo.com "contenu bulle") et du texte... Il contient du `code` et aussi du `code[spécial]`. Mais il contient aussi ce `[code]` et ce `[code(toto)]` et du `[code("toto")]` [par là](https://duckduckgo.com "contenu bulle")...
