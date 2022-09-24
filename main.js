@@ -381,7 +381,7 @@ function AnalyserTexte(texte)
 	// Pour les textes en gras, italique, gras-italique, l'ordre est important
 	
 	// D'ABORD les strong i 
-	texte = VerifierTexteTags(texte, regExStrongI, 3, '<b><i>', '</i></b>');
+	texte = VerifierTexteTags(texte, regExStrongI, 3, '<b><i>', '</i></b>', false);
 	// let strongItalics = [...texte.matchAll(regExStrongI)];
 	// if(strongItalics.length != 0)
 	// {
@@ -394,7 +394,7 @@ function AnalyserTexte(texte)
 	// }
 
 	// PUIS les Strong
-	texte = VerifierTexteTags(texte, regExStrong, 2, '<b>', '</b>');
+	texte = VerifierTexteTags(texte, regExStrong, 2, '<b>', '</b>', false);
 	// let strongs = [...texte.matchAll(regExStrong)];
 	// if(strongs.length != 0)
 	// {
@@ -407,7 +407,7 @@ function AnalyserTexte(texte)
 	// }
 
 	// ENFIN les i
-	texte = VerifierTexteTags(texte, regExI, 1, '<i>', '</i>');
+	texte = VerifierTexteTags(texte, regExI, 1, '<i>', '</i>', false);
 	// let italics = [...texte.matchAll(regExI)];
 	// if(italics.length != 0)
 	// {
@@ -420,20 +420,20 @@ function AnalyserTexte(texte)
 	// }
 	
 	// les tag <code>
-	// texte = VerifierTexteTags(texte, regExCode, 1, '<code>', '</code>');
+	texte = VerifierTexteTags(texte, regExCode, 1, '<code>', '</code>', true);
 
-	let codes = [...texte.matchAll(regExCode)];
-	if(codes.length != 0)
-	{
-		for (let i = 0; i < codes.length; i++) {
-			const e = codes[i][0];
-			let justeLeTexte = e.substring(1,e.length-1);
-			justeLeTexte = justeLeTexte.replaceAll('<','&lt;');
-			justeLeTexte = justeLeTexte.replaceAll('>','&gt;');
-			let mot = `<code>${justeLeTexte}</code>`;
-			texte = texte.replace(e,mot);
-		}
-	}
+	// let codes = [...texte.matchAll(regExCode)];
+	// if(codes.length != 0)
+	// {
+	// 	for (let i = 0; i < codes.length; i++) {
+	// 		const e = codes[i][0];
+	// 		let justeLeTexte = e.substring(1,e.length-1);
+	// 		justeLeTexte = justeLeTexte.replaceAll('<','&lt;');
+	// 		justeLeTexte = justeLeTexte.replaceAll('>','&gt;');
+	// 		let mot = `<code>${justeLeTexte}</code>`;
+	// 		texte = texte.replace(e,mot);
+	// 	}
+	// }
 	
 	// Les <T>, <U>, <V>
 	// texte = VerifierTexteTags(texte, regExVrac, 1, '&lt;', '&gt;');
@@ -443,7 +443,7 @@ function AnalyserTexte(texte)
 }
 
 
-function VerifierTexteTags(texte, regex, index, tagDebut, tagFin)
+function VerifierTexteTags(texte, regex, index, tagDebut, tagFin, remplacerChevrons)
 {
 	let instances = [...texte.matchAll(regex)];
 	if(instances.length != 0)
@@ -451,6 +451,11 @@ function VerifierTexteTags(texte, regex, index, tagDebut, tagFin)
 		for (let i = 0; i < instances.length; i++) {
 			const e = instances[i][0];
 			let justeLeTexte = e.substring(index, e.length-index);
+			if(remplacerChevrons)
+			{
+				justeLeTexte = justeLeTexte.replaceAll('<','&lt;');
+				justeLeTexte = justeLeTexte.replaceAll('>','&gt;');
+			}
 			let texteEtTags = `${tagDebut}${justeLeTexte}${tagFin}`;
 			texte = texte.replace(e, texteEtTags);
 		}
