@@ -64,7 +64,7 @@ function AnalyseMD(texte)
 		let isOLImbriquee = element.match(regExOL2);
 
 		// Si quelque chose de gênant, passer
-		if (element === null || element == '' /*|| element == '\r'*/) 
+		if (element == null || element == '' /*|| element == '\r'*/) 
 		{
 			continue;
 		}
@@ -112,8 +112,9 @@ function AnalyseMD(texte)
 			}
 		}
 		// ligne vide, possiblement du code
-		else if(element == '\r' || element == '\n')
-		{
+		else if(element == '\r' || element == '\n' || element == '\r\n')
+		{	
+			/*
 			if(!this.debutCode)
 			{
 				continue;
@@ -124,6 +125,15 @@ function AnalyseMD(texte)
 				let ligne = element.slice(0,element.length-1); 
 				tableauFinal.push(ligne);
 			}
+			*/
+			
+			// v2 
+			let ligne = element; 
+			if(element.charCodeAt(0) == 13)
+			{
+				ligne = ligne.slice(0,ligne.length-1); 
+			}
+			tableauFinal.push(ligne);
 		}
 		// liste UL ou OL
 		else if(isUL || isOL)
@@ -233,7 +243,7 @@ function AnalyseMD(texte)
 				if(element.slice(element.length-1, element.length) == "\r")
 				{
 					ligne = element.slice(0,element.length-1);
-				}
+				}		
 				// Remplacer les chevrons < et > par des html entities
 				ligne = ligne.replaceAll('<','&lt;');
 				ligne = ligne.replaceAll('>','&gt;');
@@ -336,6 +346,9 @@ const regExStrong = /\*{2}.*?\*{2}/g;
 // RegEx pour les <i>
 const regExI = /\*{1}.*?\*{1}/g;
 
+// RegEx pour les <T>, <U>...
+const regExVrac = /<{1}(T|U|V){1}>{1}/g;
+
 function AnalyserTexte(texte)
 {
 	// Les liens
@@ -419,6 +432,9 @@ function AnalyserTexte(texte)
 	// 		texte = texte.replace(e,chaine);
 	// 	}
 	// }
+	
+	// Les <T>, <U>, <V>
+	texte = VerifierTexteTags(texte, regExVrac, 1, '&lt;', '&gt;');
 
 	return texte;
 }

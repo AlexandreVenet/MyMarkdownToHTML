@@ -27,7 +27,7 @@ function void toto()
 {
 	Debug.Log("prout");
 	Du MarkDown aussi : [prout](lien "text")
-   
+
 	saut de ligne !
 	button = GetComponent<Button>();
 }
@@ -71,3 +71,10 @@ Un mélange de listes :
    - trois
 
 Ceci est un lien [par là](https://duckduckgo.com "contenu bulle") et du texte... Il contient du `code` et aussi du `code[spécial]`. Mais il contient aussi ce `[code]` et ce `[code(toto)]` et du `[code("toto")]` [par là](https://duckduckgo.com "contenu bulle")...
+
+Et du veux : 
+```
+Debug.Log($@"C:\monDossier\{monNom}\monSousDossier");
+```
+
+Je veux écrire un type générique avec T : `List<T>`. Alors ?
