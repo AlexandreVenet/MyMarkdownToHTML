@@ -77,4 +77,6 @@ Et du veux :
 Debug.Log($@"C:\monDossier\{monNom}\monSousDossier");
 ```
 
-Je veux écrire un type générique avec T : `List<T>`. Alors ?
+Je veux écrire un **type générique** : `List<T>`, `Dictionary<TKey,TValue>`. `tto<...>()`, `ttt<>`.
+
+Un bloc de commentaire `/**/`.

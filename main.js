@@ -344,10 +344,10 @@ const regExStrongI = /\*{3}.*?\*{3}/g;
 const regExStrong = /\*{2}.*?\*{2}/g;
 
 // RegEx pour les <i>
-const regExI = /\*{1}.*?\*{1}/g;
+const regExI = /(?!`|\/)\*{1}[^`]*?\*{1}(?!`|\/)/g;
 
 // RegEx pour les <T>, <U>...
-const regExVrac = /<{1}(T|U|V){1}>{1}/g;
+// const regExVrac = /<{1}(T|U|V|TKey,TValue){1}>{1}/g;
 
 function AnalyserTexte(texte)
 {
@@ -377,20 +377,6 @@ function AnalyserTexte(texte)
 	// - tags utilisés ouvrants/fermants,
 	// - index dans la chaîne pour effectuer le substring.
 	// Exemple : '*' pour l'italique, c'est l'index 1, la longueur totale du texte -1
-
-	// les tag <code>
-	texte = VerifierTexteTags(texte, regExCode, 1, '<code>', '</code>');
-
-	// let codes = [...texte.matchAll(regExCode)];
-	// if(codes.length != 0)
-	// {
-	// 	for (let i = 0; i < codes.length; i++) {
-	// 		const e = codes[i][0];
-	// 		let justeLeTexte = e.substring(1,e.length-1);
-	// 		let mot = `<code>${justeLeTexte}</code>`;
-	// 		texte = texte.replace(e,mot);
-	// 	}
-	// }
 	
 	// Pour les textes en gras, italique, gras-italique, l'ordre est important
 	
@@ -433,8 +419,25 @@ function AnalyserTexte(texte)
 	// 	}
 	// }
 	
+	// les tag <code>
+	// texte = VerifierTexteTags(texte, regExCode, 1, '<code>', '</code>');
+
+	let codes = [...texte.matchAll(regExCode)];
+	if(codes.length != 0)
+	{
+		for (let i = 0; i < codes.length; i++) {
+			const e = codes[i][0];
+			let justeLeTexte = e.substring(1,e.length-1);
+			justeLeTexte = justeLeTexte.replaceAll('<','&lt;');
+			justeLeTexte = justeLeTexte.replaceAll('>','&gt;');
+			let mot = `<code>${justeLeTexte}</code>`;
+			texte = texte.replace(e,mot);
+		}
+	}
+	
 	// Les <T>, <U>, <V>
-	texte = VerifierTexteTags(texte, regExVrac, 1, '&lt;', '&gt;');
+	// texte = VerifierTexteTags(texte, regExVrac, 1, '&lt;', '&gt;');
+
 
 	return texte;
 }
